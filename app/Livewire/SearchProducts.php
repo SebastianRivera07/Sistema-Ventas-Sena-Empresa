@@ -7,35 +7,47 @@ use Livewire\Component;
 
 class SearchProducts extends Component
 {
+    public $search = '';
     public $products = [];
-    public $searchTerm = '';
-    public $selectedId = null;
 
-    public function render()
+    protected $listeners = ['open-search-products' => 'open'];
+
+    public $show = false;
+
+    public function open()
     {
-        return view('livewire.search-products');
+        $this->show = true;
     }
 
-    public function search()
+    public function updatedSearch()
     {
-        if (trim($this->searchTerm) === '') {
-            $this->products = [];
-            return;
-        }
-
-        $this->products = Product::where('name', 'LIKE', "%{$this->searchTerm}%")
-            ->limit(8)
-            ->get();
+        $this->products = Product::where('name', 'like', "%{$this->search}%")->limit(10)->get();
     }
 
     public function selectProduct($id)
     {
         $product = Product::find($id);
 
-        $this->selectedId = $product->id;
-        $this->searchTerm = $product->name;
+        // Enviar datos al JavaScript
+    //     $this->dispatch('product-selected', [
+    //     'id' => $product->id,
+    //     'name' => $product->name,
+    //     'price' => $product->price,
+    // ]);
+        $this->dispatch(
+            'product-selected',
+            id: $product->id,
+            name: $product->name,
+            price: $product->price,
+        )->self(); // evita que Livewire re-renderice el componente completo
 
-        // 🔥 HIDE RESULTS IMMEDIATELY
-        $this->products = [];
+
+        $this->reset(['search', 'products']);
+        $this->show = false;
+    }
+
+    public function render()
+    {
+        return view('livewire.search-products');
     }
 }

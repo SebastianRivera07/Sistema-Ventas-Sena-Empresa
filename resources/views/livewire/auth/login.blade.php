@@ -177,8 +177,6 @@
             
             <form method="POST" action="{{ route('login.store') }}">
                 @csrf
-
-                
                 <div class="input-group mb-4">
                     <span class="input-group-text"><i class="bi bi-person"></i></span>
                     <input type="email"

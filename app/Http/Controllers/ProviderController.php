@@ -2,63 +2,51 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Provider;
 use Illuminate\Http\Request;
 
 class ProviderController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $proveedores = Provider::all();
+        return view('providers.index', compact('proveedores'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('providers.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate(['name' => 'required|string|max:255']);
+        Provider::create($request->only('name'));
+
+        return redirect()->route('providers.index')->with('ok', 'Proveedor creado');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(Provider $provider)
     {
-        //
+        return view('providers.show', compact('provider'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(Provider $provider)
     {
-        //
+        return view('providers.edit', compact('provider'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Provider $provider)
     {
-        //
+        $request->validate(['name' => 'required|string|max:255']);
+        $provider->update($request->only('name'));
+
+        return redirect()->route('providers.index')->with('ok', 'Proveedor actualizado');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Provider $provider)
     {
-        //
+        $provider->delete();
+        return redirect()->route('providers.index')->with('ok', 'Proveedor eliminado');
     }
 }

@@ -2,63 +2,57 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Measure;
 use Illuminate\Http\Request;
 
 class MeasureController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $measures = Measure::all();
+        return view('measures.index', compact('measures'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('measures.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:200',
+        ]);
+
+        Measure::create($request->only('name'));
+
+        return redirect()->route('measures.index')->with('ok', 'Medida creada');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(Measure $measure)
     {
-        //
+        return view('measures.show', compact('measure'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(Measure $measure)
     {
-        //
+        return view('measures.edit', compact('measure'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Measure $measure)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:200',
+        ]);
+
+        $measure->update($request->only('name'));
+
+        return redirect()->route('measures.index')->with('ok', 'Medida actualizada');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Measure $measure)
     {
-        //
+        $measure->delete();
+        return redirect()->route('measures.index')->with('ok', 'Medida eliminada');
     }
 }

@@ -2,63 +2,73 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
+use App\Models\ProductDelivery;
+use App\Models\Provider;
 use Illuminate\Http\Request;
 
 class ProductDeliveryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $deliveries = ProductDelivery::with(['product', 'provider'])->get();
+        return view('product_deliveries.index', compact('deliveries'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('product_deliveries.create', [
+            'products'  => Product::all(),
+            'providers' => Provider::all(),
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'date'             => 'required|date',
+            'delivered_amount' => 'required|integer|min:1',
+            'product_id'       => 'required|exists:products,id',
+            'provider_id'      => 'required|exists:providers,id',
+        ]);
+
+        ProductDelivery::create($request->only('date', 'delivered_amount', 'product_id', 'provider_id'));
+
+        return redirect()->route('product_deliveries.index')->with('ok', 'Entrega creada');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(ProductDelivery $productDelivery)
     {
-        //
+        $productDelivery->load(['product', 'provider']);
+        return view('product_deliveries.show', compact('productDelivery'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(ProductDelivery $productDelivery)
     {
-        //
+        return view('product_deliveries.edit', [
+            'delivery'  => $productDelivery,
+            'products'  => Product::all(),
+            'providers' => Provider::all(),
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, ProductDelivery $productDelivery)
     {
-        //
+        $request->validate([
+            'date'             => 'required|date',
+            'delivered_amount' => 'required|integer|min:1',
+            'product_id'       => 'required|exists:products,id',
+            'provider_id'      => 'required|exists:providers,id',
+        ]);
+
+        $productDelivery->update($request->only('date', 'delivered_amount', 'product_id', 'provider_id'));
+
+        return redirect()->route('product_deliveries.index')->with('ok', 'Entrega actualizada');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(ProductDelivery $productDelivery)
     {
-        //
+        $productDelivery->delete();
+        return redirect()->route('product_deliveries.index')->with('ok', 'Entrega eliminada');
     }
 }

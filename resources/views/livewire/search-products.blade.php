@@ -1,25 +1,39 @@
-<div>
-    <input class="form-control" type="text" placeholder="Buscar..." wire:model.debounce.200ms="searchTerm" wire:keydown='search'>
+<div x-data="{ open: @entangle('show') }">
 
-    <div wire:loading class="mt-2">Buscando...</div>
+    <template x-if="open">
+        <div>
+            <div class="modal-backdrop fade show"></div>
 
-    <div>
-        @if (!empty($products))
-            <ul class="list-group mt-2">
-                @foreach ($products as $product)
-                    <li class="list-group-item list-group-item-action" 
-                    style="cursor: pointer;"
-                    wire:click="selectProduct({{ $product->id }})">
-                        {{ $product->name }}
-                    </li>
-                    @if ($product)
-                        <input type="hidden" name="product_id" value="{{$product->id}}">
-                    @endif
-                @endforeach
-            </ul>
+            <div class="modal d-block" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
 
-        @else
-            <p>No hay resultados</p>
-        @endif
-    </div>
+                        <div class="modal-header">
+                            <h5 class="modal-title">Buscar producto</h5>
+
+                            <button type="button" class="btn-close" @click="open = false"></button>
+                        </div>
+
+                        <div class="modal-body">
+
+                            <input type="text" class="form-control" wire:model.live="search" placeholder="Buscar...">
+
+                            <ul class="list-group">
+                                @foreach ($products as $p)
+                                    <li class="list-group-item list-group-item-action"
+                                        wire:click="selectProduct({{ $p->id }})">
+                                        {{ $p->name }} — ${{ $p->price }}
+                                    </li>
+                                @endforeach
+                            </ul>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
 </div>
+
